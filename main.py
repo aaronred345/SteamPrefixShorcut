@@ -1,4 +1,5 @@
 import os
+import re
 from pathlib import Path
 
 def main():
@@ -15,13 +16,12 @@ def main():
         Path.mkdir(steam_prefixes_dir)
 
     # Finding Steam paths in user's home directory
-    print("Searching for steam install in directory: ", home_dir)
-    for root, dirs, files in os.walk(home_dir, topdown=True):
-        for d in dirs:
-            path = os.path.join(root, d)
-            if path.endswith("steamapps/common"):
-                print("Found one at: ", path)
-                steam_paths.append(path)
+    print("Searching for steam install")
+
+    f = open(os.path.expanduser("~/.steam/root/steamapps/libraryfolders.vdf"), "r")
+    content = f.read()
+    steam_paths = re.findall(r'\s*"path"\s+"([^"]+)"', content)
+    steam_paths = [os.path.join(path, "steamapps/common") for path in steam_paths]
 
     # Handling multiple steam installations
     if len(steam_paths) > 1:
