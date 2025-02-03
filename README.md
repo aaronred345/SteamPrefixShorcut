@@ -10,6 +10,7 @@ Installing globally requires sudo privelages, locally does not.
 
 ### To Install
 `chmod +x *.sh`
+
 `./install-global.sh` OR `./install-local.sh`
 
 ### To Uninstall
