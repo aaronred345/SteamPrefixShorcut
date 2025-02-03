@@ -14,6 +14,14 @@ def main():
         print(f"Creating directory for links to prefixes at {steam_prefixes_dir}")
         Path.mkdir(steam_prefixes_dir)
 
+    # Removing uninstalled games' symlinks
+    for link in os.listdir(steam_prefixes_dir):
+        path = steam_prefixes_dir / link
+        if not os.path.exists(os.readlink(path)):
+            print(f"{link} seems to have been uninstalled, deleting symlink")
+            os.remove(path)
+    
+
     # Finding Steam paths in user's home directory
     print("Searching for steam install in directory: ", home_dir)
     for root, dirs, files in os.walk(home_dir, topdown=True):
