@@ -1,6 +1,7 @@
 #! /usr/bin/env python
 
 import os
+import re
 from pathlib import Path
 
 def main():
@@ -25,13 +26,26 @@ def main():
     
 
     # Finding Steam paths in user's home directory
-    print("Searching for steam install in directory: ", home_dir)
-    for root, dirs, files in os.walk(home_dir, topdown=True):
-        for d in dirs:
-            path = os.path.join(root, d)
-            if path.endswith("steamapps/common"):
-                print("Found one at: ", path)
-                steam_paths.append(path)
+    print("Searching for steam install")
+    if (Path.is_dir(home_dir / ".steam/root")):
+        # Code here courtesy of JonathanY234 (modified version of this in the next else block)
+        with open(home_dir / ".steam/root/steamapps/libraryfolders.vdf", "r") as f:
+            content = f.read()
+        steam_paths = re.findall(r'\s*"path"\s+"([^"]+)"', content)
+        steam_paths = [os.path.join(path, "steamapps/common") for path in steam_paths]
+        print(steam_paths)
+    else:
+        for root, dirs, files in os.walk(home_dir, topdown=True):
+            for d in dirs:
+                path = os.path.join(root, d)
+                if path.endswith("steamapps/common"):
+                    path = Path(path)
+                    with open(path.parent / "libraryfolders.vdf") as f:
+                        content = f.read()
+                    paths = re.findall(r'\s*"path"\s+"([^"]+)"', content)
+                    for p in paths:
+                        if Path(p) / "steaamapps/common" not in steam_paths:
+                            steam_paths.append(Path(p) / "steamapps/common")
 
     # Handling multiple steam installations
     if len(steam_paths) > 1:
