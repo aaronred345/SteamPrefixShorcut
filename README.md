@@ -10,13 +10,14 @@ A Linux utility that creates easy-to-find symbolic links to Proton/Wine prefixes
 5. [Uninstallation](#uninstallation)
 6. [How It Works](#how-it-works)
 7. [Usage](#usage)
-8. [Technical Details](#technical-details)
-9. [Troubleshooting](#troubleshooting)
-10. [License](#license)
+8. [File Structure](#file-structure)
+9. [Technical Details](#technical-details)
+10. [Troubleshooting](#troubleshooting)
+11. [License](#license)
 
 ## Overview
 
-SteamPrefixShortcut automatically searches for Steam installations in your home directory, identifies installed games, and creates symbolic links named after each game in a dedicated directory (`~/SteamPrefixes`).
+SteamPrefixShortcut is a Linux utility that creates easy-to-find symbolic links to Proton/Wine prefixes for installed Steam games. The tool automatically searches for Steam installations in your home directory, identifies installed games, and creates symbolic links named after each game in a dedicated directory (`~/SteamPrefixes`).
 
 This utility is particularly useful for Linux gamers who need to access or modify their game prefixes, as it provides a centralized, clearly labeled location for all game prefixes rather than navigating through Steam's nested directory structure.
 
@@ -140,6 +141,18 @@ For example:
 cd ~/SteamPrefixes/Half-Life\ 2
 ```
 
+## File Structure
+
+- **main.py**: Main Python script that implements the tool's functionality
+- **install-local.sh**: Script for local (user-specific) installation
+- **install-global.sh**: Script for global (system-wide) installation
+- **uninstall-local.sh**: Script to remove local installation
+- **uninstall-global.sh**: Script to remove global installation
+- **compile.sh**: Helper script to compile the Python script to a binary using Nuitka
+- **cleanup.sh**: Helper script to remove temporary build files
+- **LICENSE**: MIT license file
+- **README.md**: Brief project overview and installation instructions
+
 ## Technical Details
 
 ### Prefix Location
@@ -187,6 +200,6 @@ The installation scripts use Nuitka to compile the Python script to a binary. Th
 
 ## License
 
-SteamPrefixShortcut is licensed under the MIT License.
+SteamPrefixShortcut is licensed under the MIT License. See the [LICENSE](LICENSE) file for details.
 
 Copyright (c) 2024 Aaron J Gerbert

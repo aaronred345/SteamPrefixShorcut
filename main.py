@@ -86,12 +86,17 @@ def main():
                         if Path(p) / "steaamapps/common" not in steam_paths:
                             steam_paths.append(Path(p) / "steamapps/common")
 
-    # Handling multiple steam installations
+    # SECTION 4: MULTIPLE STEAM LIBRARY HANDLING
+    # This section handles the case where multiple Steam library locations are detected
+    # It provides an interactive prompt for the user to select which library to use
+    # The user can select a specific library by number, or select 0 to use all libraries
+    # This is important for users with games installed across multiple drives or locations
     if len(steam_paths) > 1:
         ask_again = True
         user_input = ""
         count = 1
-        # Interactive selection for multiple Steam installations
+        # Interactive selection loop that continues until a valid selection is made
+        # Shows a numbered list of all detected Steam library paths
         while ask_again:
             print("More than one steam path has been found, please select one")
             count = 1
@@ -99,6 +104,7 @@ def main():
                 print(f"  - {path} ({count})")
                 count += 1
             user_input = input("Please select your steam installation (Choose 0 if you're unsure or use all of them): ")
+            # Input validation to ensure the selection is a valid number within range
             if not user_input.isdigit():
                 print("Please select a valid number")  
             elif int(user_input) < 0 or int(user_input) > count:
@@ -108,43 +114,60 @@ def main():
         user_input = int(user_input)
         # If user selects a specific path, filter the list to only that path
         # If user selects 0, keep all paths (use all of them)
+        # This allows flexibility in handling multiple libraries based on user preference
         if user_input != 0:
             steam_paths = [steam_paths[user_input - 1]]
 
-    # Linking game name and appID
+    # SECTION 5: SYMLINK CREATION FOR GAME PREFIXES
+    # This section is the core functionality of the tool. For each Steam library path:
+    # 1. It navigates to the parent directory (from 'steamapps/common' to just 'steamapps')
+    # 2. It identifies the 'compatdata' directory where Proton/Wine prefixes are stored
+    # 3. It reads all appmanifest_*.acf files to extract game names and their AppIDs
+    # 4. It creates symbolic links from ~/SteamPrefixes/[Game Name] to the actual prefix location
     print("Getting appids and names of installed games, and creating symlinks")
     for path in steam_paths:
+        # Move up one directory level from steamapps/common to just steamapps
         path = Path(path).parent
+        # The compatdata directory contains all the Proton/Wine prefixes, organized by AppID
         compat_path = path / "compatdata"
         # Process each application manifest file to extract game info
+        # Steam stores game metadata in appmanifest_[AppID].acf files
         for game in path.glob("./appmanifest_*.acf"):
             appid = ""
             gamename = ""
-            # Reads all appmanifest files to get appid and app name
+            # Reads each appmanifest file line by line to extract the AppID and game name
+            # These files use a custom Valve format (VDF) that we parse with simple string operations
             if Path.is_file(game):
                 with open(game, 'r') as f:
                     for line in f.readlines():
-                        # Extract the AppID from the manifest
+                        # Extract the AppID from the manifest (unique identifier for each game)
+                        # This is used to locate the game's prefix directory
                         if '"appid"' in line:
                             parts = line.split('"')
                             appid = parts[3]
                         # Extract the game name from the manifest
+                        # This will be used as the symlink name for easy identification
                         if '"name"' in line:
                             parts = line.split('"')
                             gamename = parts[3]
             print(f"--------------\nFound: {gamename} -- {appid}")
             
-            # Creates symlinks to steam_prefixes_dir
+            # Creates symlinks from game names to their actual prefix directories
+            # The source is the actual prefix directory: [Steam Library]/steamapps/compatdata/[AppID]
+            # The destination is the user-friendly named link: ~/SteamPrefixes/[Game Name]
             app_compat_path = compat_path / appid
             dest_path = steam_prefixes_dir / gamename
             if Path.is_dir(app_compat_path):
-                # Create symlink if it doesn't already exist
+                # Create symlink if it doesn't already exist (avoids errors on repeated runs)
+                # Some games might not have prefixes if they don't use Proton/Wine
                 if not Path.is_dir(dest_path):
                     print(f"Creating symlink for: {gamename}")
                     os.symlink(app_compat_path, dest_path, target_is_directory=True)
                 else:
                     print("Symlink already exists")
             else:
+                # This happens for games that don't use Proton/Wine (e.g., native Linux games)
+                # or for games that haven't been run yet since installation
                 print(f"{gamename} does not have a prefix")
 
 
