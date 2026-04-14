@@ -14,6 +14,7 @@ import os
 import re
 from pathlib import Path
 
+
 def main():
     """
     Main function that performs the following operations:
@@ -25,10 +26,12 @@ def main():
     """
     home_dir = Path.home()  # Path to user's home directory
     steam_prefixes_dir = home_dir / "SteamPrefixes"
-    multiple_paths = False  # If there are multiple steam paths, and user wants to use them all
+    multiple_paths = (
+        False  # If there are multiple steam paths, and user wants to use them all
+    )
     steam_paths = []  # List of all found steam paths
     steam_path = ""  # User's chosen steam path
-    
+
     # SECTION 1: DIRECTORY SETUP
     # Creates a dedicated directory in the user's home folder to store symbolic links to game prefixes
     # This directory serves as a central, easy-to-access location for all game prefixes
@@ -47,7 +50,7 @@ def main():
         if not os.path.exists(os.readlink(path)):
             print(f"{link} seems to have been uninstalled, deleting symlink")
             os.remove(path)
-    
+
     # SECTION 3: STEAM INSTALLATION DETECTION
     # This section uses two different methods to locate Steam installations in the user's home directory
     # Method 1: Looks for the standard .steam/root directory (common on many Linux distributions)
@@ -55,7 +58,7 @@ def main():
     # Both methods read the libraryfolders.vdf file to find all configured Steam library locations
     # This handles cases where users have multiple Steam libraries across different drives/locations
     print("Searching for steam install")
-    if (Path.is_dir(home_dir / ".steam/root")):
+    if Path.is_dir(home_dir / ".steam/root"):
         # First method: Check standard .steam/root directory
         # Code here courtesy of JonathanY234 (modified version of this in the next else block)
         with open(home_dir / ".steam/root/steamapps/libraryfolders.vdf", "r") as f:
@@ -103,10 +106,12 @@ def main():
             for path in steam_paths:
                 print(f"  - {path} ({count})")
                 count += 1
-            user_input = input("Please select your steam installation (Choose 0 if you're unsure or use all of them): ")
+            user_input = input(
+                "Please select your steam installation (Choose 0 if you're unsure or use all of them): "
+            )
             # Input validation to ensure the selection is a valid number within range
             if not user_input.isdigit():
-                print("Please select a valid number")  
+                print("Please select a valid number")
             elif int(user_input) < 0 or int(user_input) > count:
                 print("Please select a number within the range")
             else:
@@ -138,7 +143,7 @@ def main():
             # Reads each appmanifest file line by line to extract the AppID and game name
             # These files use a custom Valve format (VDF) that we parse with simple string operations
             if Path.is_file(game):
-                with open(game, 'r') as f:
+                with open(game, "r") as f:
                     for line in f.readlines():
                         # Extract the AppID from the manifest (unique identifier for each game)
                         # This is used to locate the game's prefix directory
@@ -151,7 +156,7 @@ def main():
                             parts = line.split('"')
                             gamename = parts[3]
             print(f"--------------\nFound: {gamename} -- {appid}")
-            
+
             # Creates symlinks from game names to their actual prefix directories
             # The source is the actual prefix directory: [Steam Library]/steamapps/compatdata/[AppID]
             # The destination is the user-friendly named link: ~/SteamPrefixes/[Game Name]
@@ -173,3 +178,4 @@ def main():
 
 if __name__ == "__main__":
     main()
+
