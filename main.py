@@ -156,7 +156,7 @@ def main():
             # The source is the actual prefix directory: [Steam Library]/steamapps/compatdata/[AppID]
             # The destination is the user-friendly named link: ~/SteamPrefixes/[Game Name]
             app_compat_path = compat_path / appid
-            dest_path = steam_prefixes_dir / gamename
+            dest_path = steam_prefixes_dir / gamename.replace("/", "-")
             if Path.is_dir(app_compat_path):
                 # Create symlink if it doesn't already exist (avoids errors on repeated runs)
                 # Some games might not have prefixes if they don't use Proton/Wine
