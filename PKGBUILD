@@ -8,7 +8,7 @@ url="https://github.com/aaronred345/SteamPrefixShorcut"
 license=('MIT')
 depends=('python')
 source=("$pkgname-$pkgver.tar.gz::$url/archive/refs/tags/v$pkgver.tar.gz")
-sha256sums=('5f65ff9696ab00bfbf0f8d162430d496df680a385fd1f013457112ebd9817f93')
+sha256sums=('4072e1e1bb30f0c98d4948641bfdbe6d4e1eac405914b6b9aeebf1a6e15fdec9')
 
 package() {
     cd "$srcdir/SteamPrefixShorcut-$pkgver"
